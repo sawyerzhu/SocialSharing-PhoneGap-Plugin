@@ -225,42 +225,42 @@ public class SocialSharing extends CordovaPlugin {
 
   private boolean shareWithOptions(CallbackContext callbackContext, JSONObject jsonObject) {
     return doSendIntent(
-        callbackContext,
-        jsonObject.optString("message", null),
-        jsonObject.optString("subject", null),
-        jsonObject.optJSONArray("files") == null ? new JSONArray() : jsonObject.optJSONArray("files"),
-        jsonObject.optString("url", null),
-        jsonObject.optString("appPackageName", null),
-        jsonObject.optString("chooserTitle", null),
-        false,
-        false
+            callbackContext,
+            jsonObject.optString("message", null),
+            jsonObject.optString("subject", null),
+            jsonObject.optJSONArray("files") == null ? new JSONArray() : jsonObject.optJSONArray("files"),
+            jsonObject.optString("url", null),
+            jsonObject.optString("appPackageName", null),
+            jsonObject.optString("chooserTitle", null),
+            false,
+            false
     );
   }
 
   private boolean doSendIntent(
-      final CallbackContext callbackContext,
-      final String msg,
-      final String subject,
-      final JSONArray files,
-      final String url,
-      final String appPackageName,
-      final String chooserTitle,
-      final boolean peek,
-      final boolean boolResult) {
+          final CallbackContext callbackContext,
+          final String msg,
+          final String subject,
+          final JSONArray files,
+          final String url,
+          final String appPackageName,
+          final String chooserTitle,
+          final boolean peek,
+          final boolean boolResult) {
     return doSendIntent(callbackContext, msg, subject, files, url, appPackageName, chooserTitle, peek, boolResult, null);
   }
 
   private boolean doSendIntent(
-      final CallbackContext callbackContext,
-      final String msg,
-      final String subject,
-      final JSONArray files,
-      final String url,
-      final String appPackageName,
-      final String chooserTitle,
-      final boolean peek,
-      final boolean boolResult,
-      final String appName) {
+          final CallbackContext callbackContext,
+          final String msg,
+          final String subject,
+          final JSONArray files,
+          final String url,
+          final String appPackageName,
+          final String chooserTitle,
+          final boolean peek,
+          final boolean boolResult,
+          final String appName) {
 
     final CordovaInterface mycordova = cordova;
     final CordovaPlugin plugin = this;
@@ -325,7 +325,7 @@ public class SocialSharing extends CordovaPlugin {
         // this was added to start the intent in a new window as suggested in #300 to prevent crashes upon return
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        if (appPackageName != null) {
+        if (false && appPackageName != null) {
           String packageName = appPackageName;
           String passedActivityName = null;
           if (packageName.contains("/")) {
@@ -340,7 +340,7 @@ public class SocialSharing extends CordovaPlugin {
             } else {
               sendIntent.addCategory(Intent.CATEGORY_LAUNCHER);
               sendIntent.setComponent(new ComponentName(activity.applicationInfo.packageName,
-                  passedActivityName != null ? passedActivityName : activity.name));
+                      passedActivityName != null ? passedActivityName : activity.name));
 
               // as an experiment for #300 we're explicitly running it on the ui thread here
               cordova.getActivity().runOnUiThread(new Runnable() {
@@ -379,6 +379,19 @@ public class SocialSharing extends CordovaPlugin {
                 } else {
                   chooseIntent = Intent.createChooser(sendIntent, chooserTitle);
                 }
+
+                if (appPackageName != null) {
+                  String[] items = appPackageName.split("/");
+                  String packageName = items[0];
+
+                  sendIntent.setPackage(packageName);
+
+                  if (items.length > 1) {
+                    String passedActivityName = items[1];
+                    sendIntent.setComponent(new ComponentName(packageName, passedActivityName));
+                  }
+                }
+
                 mycordova.startActivityForResult(plugin, chooseIntent, boolResult ? ACTIVITY_CODE_SEND__BOOLRESULT : ACTIVITY_CODE_SEND__OBJECT);
               }
             });
@@ -704,8 +717,8 @@ public class SocialSharing extends CordovaPlugin {
       switch (requestCode) {
         case ACTIVITY_CODE_SEND__BOOLRESULT:
           _callbackContext.sendPluginResult(new PluginResult(
-              PluginResult.Status.OK,
-              resultCode == Activity.RESULT_OK));
+                  PluginResult.Status.OK,
+                  resultCode == Activity.RESULT_OK));
           break;
         case ACTIVITY_CODE_SEND__OBJECT:
           JSONObject json = new JSONObject();
@@ -713,8 +726,8 @@ public class SocialSharing extends CordovaPlugin {
             json.put("completed", resultCode == Activity.RESULT_OK);
             json.put("app", (ShareChooserPendingIntent.chosenComponent != null ? ShareChooserPendingIntent.chosenComponent : "")); // we need a completely different approach if we want to support this on Android. Idea: https://clickclickclack.wordpress.com/2012/01/03/intercepting-androids-action_send-intents/
             _callbackContext.sendPluginResult(new PluginResult(
-                PluginResult.Status.OK,
-                json));
+                    PluginResult.Status.OK,
+                    json));
           } catch (JSONException e) {
             _callbackContext.error(e.getMessage());
           }
@@ -784,8 +797,8 @@ public class SocialSharing extends CordovaPlugin {
 
   private static boolean notEmpty(String what) {
     return what != null &&
-        !"".equals(what) &&
-        !"null".equalsIgnoreCase(what);
+            !"".equals(what) &&
+            !"null".equalsIgnoreCase(what);
   }
 
   private static String[] toStringArray(JSONArray jsonArray) throws JSONException {
